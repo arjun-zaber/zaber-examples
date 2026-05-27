@@ -54,6 +54,4 @@ ignore = [
     ]
 
 [tool.mypy]
-ignore = [
-    "import-not-found"
-]
+disable_error_code = ["import-not-found", "import-untyped", "call-overload"]

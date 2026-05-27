@@ -27,7 +27,7 @@ This example requires an image acquisition to be completed prior to runnning, pr
 - `-d, --acquisition-dir`: Directory containing acquisition images.
 - `-o, --output-directory` (Optional): Output directory for generated `.ome.tiff` file.
 
-To run the example: 
+To run the example:
 
 ```shell
 cd src/microscope_ome_tiff_generation/
@@ -49,11 +49,11 @@ The example only looks for image file names matching the patterns in the `IMAGE_
 
 `OMETiffWriter` uses the [`ome_types`](https://pypi.org/project/ome-types/) library to parse metadata XML into a python object which is further modified in `modify_metadata`.
 
-The code in `modify_metadata` looks at the image data to derive the `pixel_type`, `interleaved` and `samples_per_pixel` attributes for OME `Image` and `Pixels` objects. These are often required by OME-TIFF readers for rendereing. 
+The code in `modify_metadata` looks at the image data to derive the `pixel_type`, `interleaved` and `samples_per_pixel` attributes for OME `Image` and `Pixels` objects. These are often required by OME-TIFF readers for rendereing.
 
-Additional logic to moify metadata can be added to this method. 
+Additional logic to moify metadata can be added to this method.
 
-```python 
+```python
     def modify_metadata(self, sample: np.ndarray) -> str:
 
         # get OME metadata object

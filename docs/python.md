@@ -8,11 +8,11 @@ with [pymarkdownlnt](https://github.com/jackdewinter/pymarkdown).
 - [ ] The code example should use [uv](https://docs.astral.sh/uv/).
 - [ ] The code must pass the following linter / type checkers:
   - [ ] Use [Ruff](https://docs.astral.sh/ruff/tutorial/) with the Zaber recommended configuration.
-    -  The `.pyproject.toml` file for the directory must extend the [Zaber Ruff config](../tools/tooling_config/zaber-ruff.toml). An example can found in the [templates folder](../examples/_template/python_uv/pyproject.toml).
+    - The `.pyproject.toml` file for the directory must extend the [Zaber Ruff config](../tools/tooling_config/zaber-ruff.toml). An example can found in the [templates folder](../examples/_template/python_uv/pyproject.toml).
     - `uv run ruff format <filename.py> # format the code`
     - `uv run ruff check <filename.py> # lint the code`
   - [ ] Use [Pyright](https://microsoft.github.io/pyright/#/) with the recommended Zaber Configuration for type-checking
-      -  The `.pyproject.toml` file for the directory must extend the [Zaber Pyright config](../tools/tooling_config/zaber-pyright.toml). An example can found in the [templates folder](../examples/_template/python_uv/pyproject.toml).
+    - The `.pyproject.toml` file for the directory must extend the [Zaber Pyright config](../tools/tooling_config/zaber-pyright.toml). An example can found in the [templates folder](../examples/_template/python_uv/pyproject.toml).
     - `uv run pyright <filename.py>`
 
 The [CI script](../.github/workflows/check_examples.yml) will automatically call the [`check_example` script](../tools/check_examples/) to run the linters. The [`check_example` script](../tools/check_examples/) can be called manually using `uv run check` before
