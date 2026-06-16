@@ -13,8 +13,6 @@ Using this Python code, you will be able to:
 - Organize Complex Acquisitions: OME-TIFF organizes frames along TCZYX axes (Time, Channel, Z, Y, X), allowing massive multi-dimensional acquisitions and Z-stacks to be stored in a single, manageable file.
 - Simplify Image Stitching & Analysis: Open the generated OME-TIFF files directly in standard bioimaging tools or libraries (like ImageJ/Fiji) for immediate processing, seamless image stitching, and advanced analysis.
 
-This guide was developed specifically for use with the [Zaber Launcher Microscopy app](https://www.zaber.com/zaber-launcher) that exports image metadata as OME-XML files after image acquisition.
-
 ## Hardware Requirements
 
 This example does not require any hardware to run. The example assumes that an image acquisition has been completed using a [Zaber microscope](https://www.zaber.com/products/microscopes).
