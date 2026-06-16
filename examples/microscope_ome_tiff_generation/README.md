@@ -2,11 +2,18 @@
 
 *By Arjun Swani*
 
-The [Open Microscopy Environment (OME) data model](https://ome-model.readthedocs.io/en/stable/index.html) was developed to structure experiment data for biological microscopy imaging. The model can be expressed as just metadata in [OME-XML](https://ome-model.readthedocs.io/en/stable/ome-xml/) files or embedded with image data in [OME-TIFF](https://ome-model.readthedocs.io/en/stable/ome-tiff/specification.html) files.
+When using automated microscopy for large-area image stitching, high-resolution Z-stacking or multi-dimensional (multi-D) acquisition, managing the captured data can be a challenging task. A single automated run on a Zaber microscope can generate several individual image files along with separate metadata logs. Relying on separate image and metadata files can make the downstream analysis difficult and can increase the risk of critical data being lost. 
 
-This example demonstrates how to combine an `.ome.xml` file with image data to create an `.ome.tiff` file. OME-TIFF organises frames along TCZYX axes (Time, Channel, Z, Y, X) allowing multi-dimensional acquisitions to be stored in a single file alongside structured metadata. The generated OME-TIFF files can be opened directly in bioimaging tools or libraries and can be further processed for image analysis, stitching, or other workflows.
+The [Open Microscopy Environment (OME) data model](https://ome-model.readthedocs.io/en/stable/index.html) was developed to solve this by structuring experiment data for biological microscopy imaging. While this model can be expressed as just metadata in [OME-XML](https://ome-model.readthedocs.io/en/stable/ome-xml/) files, it is most effective when embedded with image data to create [OME-TIFF](https://ome-model.readthedocs.io/en/stable/ome-tiff/specification.html) files.
 
-The example was specifically developed to be used with the [Zaber Launcher Microscopy app](https://www.zaber.com/zaber-launcher) that exports image metadata as OME-XML files after image acquisition.
+This guide demonstrates how to use Python to combine an .ome.xml file with raw image data to create a compatible .ome.tiff file. This example was specifically developed to be used with the Zaber Launcher Microscopy app, which seamlessly exports image metadata as OME-XML files after image acquisition.
+
+Using this Python code, you will be able to:
+- Create and Modify OME-TIFF Datasets: Bind structured metadata (X/Y stage coordinates, Z-focus depth, exposure channels) directly to the corresponding image pixels using the widely adopted OME-TIFF specification to create compact, portable data sets. 
+- Organize Complex Acquisitions: OME-TIFF organizes frames along TCZYX axes (Time, Channel, Z, Y, X), allowing massive multi-dimensional acquisitions and Z-stacks to be stored in a single, manageable file.
+- Simplify Image Stitching & Analysis: Open the generated OME-TIFF files directly in standard bioimaging tools or libraries (like ImageJ/Fiji) for immediate processing, seamless image stitching, and advanced analysis.
+
+This guide was developed specifically for use with the [Zaber Launcher Microscopy app](https://www.zaber.com/zaber-launcher) that exports image metadata as OME-XML files after image acquisition.
 
 ## Hardware Requirements
 
@@ -46,7 +53,7 @@ The example only looks for image file names matching the patterns in the `IMAGE_
 
 ### Modifying Metadata
 
-`OMETiffWriter` uses the [`ome_types`](https://pypi.org/project/ome-types/) library to parse metadata XML into a python object which is further modified in `modify_metadata`.
+`OMETiffWriter` uses the [`ome_types`](https://pypi.org/project/ome-types/) library to parse metadata XML into a Python object which is further modified in `modify_metadata`.
 
 The code in `modify_metadata` looks at the image data to derive the `pixel_type`, `interleaved` and `samples_per_pixel` attributes for OME `Image` and `Pixels` objects. These are often required by OME-TIFF readers for rendering.
 
@@ -122,3 +129,9 @@ The current illuminator configuration is captured in structured annotations like
 Each different configuration has a corresponding annotation generated which is referenced under the OME `Channel` metadata tag for image planes. When single illuminator setups are used, the corresponding OME `Channel` metadata is filled in addition to the generated structured annotations.
 
 While most third party readers will not be able to parse this information directly, it will be viewable under the OME metadata and can be parsed programmatically.
+
+## Conclusion
+
+Whether you are scanning wafers or performing deep-tissue Z-stacks, this Python implementation ensures that your Zaber microscope outputs immediately analyzable data. For more information about using the Zaber microscope, see the following resources: 
+- [Zaber Launcher Microscope Tutorials](https://software.zaber.com/zaber-launcher/tutorials/Microscope)
+- [Zaber Motion Library Microscopy API](https://software.zaber.com/motion-library/api/py/microscopy/)
