@@ -52,7 +52,7 @@ class OMETiffWriter:
 
         with TiffWriter(ome_tiff_file, kind="generic") as tif:
             sample_frame: None | np.ndarray = None
-            
+
             for index, frame in enumerate(self.get_acquisition_images(ignore_filename = ome_tiff_file.name)):
                 if index == 0:
                     sample_frame = frame
@@ -60,7 +60,8 @@ class OMETiffWriter:
                     tif.write(frame, contiguous=True, description=metadata_str.encode())
                 else:
                     if sample_frame is not None and sample_frame.shape != frame.shape:
-                        logger.warning("Example assumes that each image in the dataset has identical dimensions. Metadata may be inaccurate")
+                        logger.warning("Example assumes that each image in the dataset has identical dimensions."
+                                       "Metadata may be inaccurate")
                     tif.write(frame, contiguous=True)
         logger.info(f"Output wriiten to {ome_tiff_file}")
 
@@ -82,23 +83,23 @@ class OMETiffWriter:
         filenames: list[Path] = []
         for pattern in self.IMAGE_FORMAT_PATTERNS:
             matched_filenames = self.image_dir.glob(pattern)
-            
+
             for matched_filename in matched_filenames:
                 if matched_filename.name == ignore_filename:
                     logger.debug(f"Ignoring file {matched_filename.name}")
-                    continue 
+                    continue
                 filenames.append(matched_filename)
 
         num_files = len(filenames)
         if  num_files == 0:
             logger.warning(
                 "Found 0 files in acquistion data directory"
-                "Verify that the directory is correct and file types are" 
+                "Verify that the directory is correct and file types are"
                 "specified in IMAGE_FORMAT_PATTERNS"
                 )
         else:
             logger.info(f"Found {num_files} files")
-            
+
         sorted_filenames = self.get_acquisition_order(filenames)
 
         for filename in sorted_filenames:
@@ -133,12 +134,12 @@ class OMETiffWriter:
             image.pixels.interleaved = interleaved
             image.pixels.size_x = width
             image.pixels.size_y = height
-            
+
             for channel in image.pixels.channels:
                 channel.samples_per_pixel = samples_per_pixel
             if image.pixels.channels:
                 # Seperate from number of channels
-                # for Tiff files: Size C = number_channels * samples_per_pixels 
+                # for Tiff files: Size C = number_channels * samples_per_pixels
                 # https://forum.image.sc/t/tifffile-multiplies-channels-with-rgb-in-ome-tiff-generation/95138
                 image.pixels.size_c = samples_per_pixel * len(image.pixels.channels)
         return ome.to_xml()
