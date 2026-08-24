@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Final
@@ -8,6 +9,8 @@ from ome_types import from_xml
 from ome_types.model import PixelType
 from PIL import Image
 from tifffile import TiffWriter
+
+logger = logging.getLogger(__name__)
 
 
 class OMETiffWriter:
@@ -45,14 +48,16 @@ class OMETiffWriter:
     def write_ome_tiff(self) -> None:
         """Write a OME-TIFF file."""
         ome_tiff_dir = self.output_directory or self.metadata.parent
+        ome_tiff_file = ome_tiff_dir / self.metadata.with_suffix(".tiff").name
 
-        with TiffWriter(ome_tiff_dir / self.metadata.with_suffix(".tiff").name, kind="generic") as tif:
+        with TiffWriter(ome_tiff_file, kind="generic") as tif:
             for index, frame in enumerate(self.get_acquisition_images()):
                 if index == 0:
                     metadata_str = self.modify_metadata(frame)
                     tif.write(frame, contiguous=True, description=metadata_str.encode())
                 else:
                     tif.write(frame, contiguous=True)
+        logger.info(f"Output wriiten to {ome_tiff_file}")
 
     def get_acquisition_order(self, acquisition_filenames: list[Path]) -> list[Path]:
         """Sorts acquisition image file names by acquisition order.
@@ -74,9 +79,20 @@ class OMETiffWriter:
             pattern_filenames = self.image_dir.glob(pattern)
             filenames += list(pattern_filenames)
 
+        num_files = len(filenames)
+        if  num_files == 0:
+            logger.warning(
+                "Found 0 files in acquistion data directory"
+                "Verify that the directory is correct and file types are" 
+                "specified in IMAGE_FORMAT_PATTERNS"
+                )
+        else:
+            logger.info(f"Found {num_files} files")
+            
         sorted_filenames = self.get_acquisition_order(filenames)
 
         for filename in sorted_filenames:
+            logger.debug(f"Fetching {filename}")
             yield np.asarray(Image.open(filename))
 
     def modify_metadata(self, sample: np.ndarray) -> str:
@@ -152,7 +168,18 @@ class OMETiffWriter:
         path_type=Path,
     ),
 )
-def generate(ome_metadata: Path, acquisition_dir: Path, output_directory: Path | None) -> None:
+@click.option(
+    "-v",
+    "--verbose",
+    help="Log debug messages in addition to informational ones.",
+    is_flag=True,
+)
+def generate(ome_metadata: Path, acquisition_dir: Path, output_directory: Path | None, *, verbose: bool) -> None:
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.INFO,
+        format="%(levelname)s %(name)s: %(message)s",
+    )
+
     if not (ome_metadata.name.endswith(".ome.xml")):
         raise click.BadParameter("must have extension .ome.xml", param_hint="--ome-metadata")
 
