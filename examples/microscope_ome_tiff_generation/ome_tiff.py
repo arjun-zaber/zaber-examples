@@ -53,15 +53,17 @@ class OMETiffWriter:
         with TiffWriter(ome_tiff_file, kind="generic") as tif:
             sample_frame: None | np.ndarray = None
 
-            for index, frame in enumerate(self.get_acquisition_images(ignore_filename = ome_tiff_file.name)):
+            for index, frame in enumerate(self.get_acquisition_images(ignore_filename=ome_tiff_file.name)):
                 if index == 0:
                     sample_frame = frame
                     metadata_str = self.modify_metadata(sample_frame)
                     tif.write(frame, contiguous=True, description=metadata_str.encode())
                 else:
                     if sample_frame is not None and sample_frame.shape != frame.shape:
-                        logger.warning("Example assumes that each image in the dataset has identical dimensions."
-                                       "Metadata may be inaccurate")
+                        logger.warning(
+                            "Example assumes that each image in the dataset has identical dimensions."
+                            "Metadata may be inaccurate"
+                        )
                     tif.write(frame, contiguous=True)
         logger.info(f"Output wriiten to {ome_tiff_file}")
 
@@ -91,12 +93,12 @@ class OMETiffWriter:
                 filenames.append(matched_filename)
 
         num_files = len(filenames)
-        if  num_files == 0:
+        if num_files == 0:
             logger.warning(
                 "Found 0 files in acquistion data directory"
                 "Verify that the directory is correct and file types are"
                 "specified in IMAGE_FORMAT_PATTERNS"
-                )
+            )
         else:
             logger.info(f"Found {num_files} files")
 
