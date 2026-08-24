@@ -25,7 +25,7 @@ class OMETiffWriter:
         output_directory (Optional): Output directory.
     """
 
-    IMAGE_FORMAT_PATTERNS: Final = ["*.jpg", "*.bmp", "*.png", "*.tif"]
+    IMAGE_FORMAT_PATTERNS: Final = ["*.jpg", "*.bmp", "*.png", "*.tif", "*.tiff"]
 
     DTYPE_TO_OME: Final[dict[np.dtype, PixelType]] = {
         np.dtype("uint8"): PixelType.UINT8,
@@ -51,7 +51,7 @@ class OMETiffWriter:
         ome_tiff_file = ome_tiff_dir / self.metadata.with_suffix(".tiff").name
 
         with TiffWriter(ome_tiff_file, kind="generic") as tif:
-            for index, frame in enumerate(self.get_acquisition_images()):
+            for index, frame in enumerate(self.get_acquisition_images(ignore_filename = ome_tiff_file.name)):
                 if index == 0:
                     metadata_str = self.modify_metadata(frame)
                     tif.write(frame, contiguous=True, description=metadata_str.encode())
@@ -66,7 +66,7 @@ class OMETiffWriter:
         """
         return sorted(acquisition_filenames)
 
-    def get_acquisition_images(self) -> Iterator[np.ndarray]:
+    def get_acquisition_images(self, ignore_filename: str = "") -> Iterator[np.ndarray]:
         """Yield acquisition images from the image directory as numpy arrays in acquisition order.
 
         Assumes alphabetically sorted image file names correspond to order of acquisition.
@@ -76,8 +76,13 @@ class OMETiffWriter:
         """
         filenames: list[Path] = []
         for pattern in self.IMAGE_FORMAT_PATTERNS:
-            pattern_filenames = self.image_dir.glob(pattern)
-            filenames += list(pattern_filenames)
+            matched_filenames = self.image_dir.glob(pattern)
+            
+            for matched_filename in matched_filenames:
+                if matched_filename.name == ignore_filename:
+                    logger.debug(f"Ignoring file {matched_filename.name}")
+                    continue 
+                filenames.append(matched_filename)
 
         num_files = len(filenames)
         if  num_files == 0:
