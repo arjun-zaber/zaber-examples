@@ -51,11 +51,16 @@ class OMETiffWriter:
         ome_tiff_file = ome_tiff_dir / self.metadata.with_suffix(".tiff").name
 
         with TiffWriter(ome_tiff_file, kind="generic") as tif:
+            sample_frame: None | np.ndarray = None
+            
             for index, frame in enumerate(self.get_acquisition_images(ignore_filename = ome_tiff_file.name)):
                 if index == 0:
-                    metadata_str = self.modify_metadata(frame)
+                    sample_frame = frame
+                    metadata_str = self.modify_metadata(sample_frame)
                     tif.write(frame, contiguous=True, description=metadata_str.encode())
                 else:
+                    if sample_frame is not None and sample_frame.shape != frame.shape:
+                        logger.warning("Example assumes that each image in the dataset has identical dimensions. Metadata may be inaccurate")
                     tif.write(frame, contiguous=True)
         logger.info(f"Output wriiten to {ome_tiff_file}")
 
