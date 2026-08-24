@@ -103,7 +103,7 @@ class OMETiffWriter:
     def modify_metadata(self, sample: np.ndarray) -> str:
         """Update OME-XML pixel properties to match the acquired image data.
 
-        Derives pixel type and interleaving from ``sample``.
+        Derives pixel dimensions, pixel type and interleaving from ``sample``.
 
         Args:
             sample: Representative image used to derive pixel properties.
@@ -113,6 +113,7 @@ class OMETiffWriter:
         """
         ome = from_xml(self.metadata)
         pixel_type = self.DTYPE_TO_OME.get(sample.dtype)
+        height, width = sample.shape[:2]
 
         if sample.ndim == self.NUM_CHANNELS_GREYSCALE:  # greyscale (H, W)
             samples_per_pixel = 1
@@ -125,8 +126,16 @@ class OMETiffWriter:
             if pixel_type is not None:
                 image.pixels.type = pixel_type
             image.pixels.interleaved = interleaved
+            image.pixels.size_x = width
+            image.pixels.size_y = height
+            
             for channel in image.pixels.channels:
                 channel.samples_per_pixel = samples_per_pixel
+            if image.pixels.channels:
+                # Seperate from number of channels
+                # for Tiff files: Size C = number_channels * samples_per_pixels 
+                # https://forum.image.sc/t/tifffile-multiplies-channels-with-rgb-in-ome-tiff-generation/95138
+                image.pixels.size_c = samples_per_pixel * len(image.pixels.channels)
         return ome.to_xml()
 
 
