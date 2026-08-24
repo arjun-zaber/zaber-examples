@@ -65,7 +65,7 @@ class OMETiffWriter:
                             "Metadata may be inaccurate"
                         )
                     tif.write(frame, contiguous=True)
-        logger.info(f"Output wriiten to {ome_tiff_file}")
+        logger.info(f"Output written to {ome_tiff_file}")
 
     def get_acquisition_order(self, acquisition_filenames: list[Path]) -> list[Path]:
         """Sorts acquisition image file names by acquisition order.
